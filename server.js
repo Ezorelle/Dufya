@@ -1,38 +1,41 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcryptjs'); //im using bycryptjs for my project
+const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const User = require('./models/User');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true
-}));
+// Parse incoming requests
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
-app.use(bodyParser.json());
+// MongoDB URI
+const MONGO_URI = "mongodb+srv://ezorelle23:daniel123@cluster0.dlmpmvb.mongodb.net/dufyaDB?retryWrites=true&w=majority&appName=Cluster0";
 
+// Connect to MongoDB
+mongoose.connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected 😎"))
+  .catch((err) => console.error("MongoDB connection error:", err));
+
+// Session setup
 app.use(session({
-  secret: 'dufya-secret',
+  secret: 'your-secret-key', // Replace with an env var in production
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: MONGO_URI,
+    collectionName: 'sessions'
+  }),
   cookie: {
-    secure: false,
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
 }));
 
-// Serve login page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'Login.html'));
-});
-app.use(express.static(path.join(__dirname, 'public')));
-
+// Middleware to protect routes
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.status(401).json({ message: 'Unauthorized. Please login.' });
@@ -40,11 +43,15 @@ function requireLogin(req, res, next) {
   next();
 }
 
-mongoose.connect("mongodb+srv://ezorelle23:daniel123@cluster0.dlmpmvb.mongodb.net/dufyaDB?retryWrites=true&w=majority&appName=Cluster0")
-  .then(() => console.log("MongoDB connected😎"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
-// REGISTER route
+// Serve login page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'Login.html'));
+});
+
+// REGISTER
 app.post('/register', async (req, res) => {
   const { fullName, phone, birthDate, password, gender, address, country, city } = req.body;
 
@@ -58,7 +65,7 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10); // ✅ hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       fullName,
       phone,
@@ -77,7 +84,7 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// LOGIN route
+// LOGIN
 app.post('/login', async (req, res) => {
   const { phone, password } = req.body;
 
@@ -86,7 +93,7 @@ app.post('/login', async (req, res) => {
     return res.status(401).json({ message: 'Invalid phone or password.' });
   }
 
-  const isMatch = await bcrypt.compare(password, user.password); // ✅ compare hash
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.status(401).json({ message: 'Invalid phone or password.' });
   }
@@ -95,10 +102,12 @@ app.post('/login', async (req, res) => {
   res.json({ success: true });
 });
 
+// Protected page
 app.get('/index.html', requireLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// LOGOUT
 app.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.clearCookie('connect.sid');
@@ -106,6 +115,7 @@ app.post('/logout', (req, res) => {
   });
 });
 
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT} 🥶`);
 });

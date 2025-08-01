@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dufya</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+ <style>
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #3e8e41;
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Glitch Header -->
+    <div class="loader">
+        <div data-glitch="Welcome to my website" class="glitch">Welcome to my website</div>
+    </div>
+
+<div style="text-align: right; padding: 1rem;">
+  <button onclick="logout()" style="
+    padding: 0.6rem 1.2rem;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  " onmouseover="this.style.backgroundColor='#c9302c'" onmouseout="this.style.backgroundColor='#d9534f'">
+    Logout
+  </button>
+</div>
+
+<script>
+  function logout() {
+    fetch('/logout', {
+      method: 'POST',
+      credentials: 'include'
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      window.location.href = '/'; // Go back to login page
+    })
+    .catch(err => {
+      console.error('Logout failed:', err);
+      alert('Error logging out.');
+    });
+  }
+</script>
+    <!-- About Section -->
+    <div class="about-section">
+        <div class="about-content">
+            <img src="images/Jephter1.jpg" alt="Ezorelle" class="about-image">
+            <h2>About Me</h2>
+            <p>Hi, I’m Japhiter Sindiga from Mombasa. Known online as Ezorelle, I’m passionate about web development, creative design, and music production. Whether I’m building web projects or crafting beats, I believe in blending art and technology to create meaningful experiences.</p>
+            <p>🄸'🄼 🄽🄰🅃🅄🅁🄰🄻🄻🅈 🄰 🄿🅁🄾🄶🅁🄰🄼🄼🄴🅁, 🄱🅄🅃 🄸 🄰🄱🅂🄾🄻🅄🅃🄴🄻🅈 🄻🄾🅅🄴 🄴🅇🄿🅁🄴🅂🅂🄸🄽🄶 🄼🅈 🄰🅁🅃🄸🅂🅃🄸🄲 🅂🄸🄳🄴 🅃🄷🅁🄾🅄🄶🄷 🄼🅄🅂🄸🄲 🎵🎼🎹🎶💿</p>
+        </div>
+    </div>
+
+    <!-- Education & Experience Section -->
+    <div class="education-section">
+        <div class="education-content">
+            <h2>Education & Experience</h2>
+            <ul class="education-list">
+                <li><strong>2007 - 2013:</strong> Maryjoy Primary School</li>
+                <li><strong>2014 - 2017:</strong> St George's Grassland School</li>
+                <li><strong>2018 - 2022:</strong> Moi Forces Academy</li>
+                <li><strong>2022 - 2025:</strong> Zetech University</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- CV Section -->
+    <div class="cv-section">
+        <div class="cv-content">
+            <h2>My CV</h2>
+            <p><strong>Japhiter Sindiga</strong></p>
+            <p>Mobile: +254 720 758260</p>
+            <p>Email: ezorelle23@gmail.com</p>
+            <p>Address: Ruiru, Thika Rd</p>
+
+            <h3>Objective</h3>
+            <p>Aspiring to contribute to your company's financial success, applying my strong analytical and technical skills and financial acumen to support strategic decision-making and sustainable growth, aligning with the company's commitment to long-term value creation.</p>
+
+            <h3>Project Details</h3>
+            <p><strong>Project Title:</strong> Auction System For Revenue Authority</p>
+            <p><strong>Description:</strong> Created a comprehensive auction system with the potential to streamline asset disposal and facilitate internal sales. Key features include secure bidding, item categorization, and reporting functionalities, demonstrating my ability to develop solutions with practical business applications.</p>
+            <p><strong>Duration:</strong> 2 Months</p>
+            <p><strong>Role:</strong> Project Manager</p>
+            <p><strong>Team Members:</strong> 2</p>
+
+            <h3>Education</h3>
+            <p><strong>Institution:</strong> Zetech University</p>
+            <p><strong>Major:</strong> Bachelor Of Science In Information Technology</p>
+
+            <h3>Field of Interest</h3>
+            <p>Internship</p>
+
+            <h3>Skills</h3>
+            <ul>
+                <li>Cloud Computing</li>
+                <li>Web Development: HTML, CSS, JavaScript, Python, Node.js</li>
+                <li>Computer Applications: Microsoft Office (Excel, Word, Access)</li>
+            </ul>
+
+            <h3>Strengths</h3>
+            <p>Effective Communication, Critical Thinking, Problem Solving, Creative Thinking, Leadership</p>
+
+            <h3>Hobbies</h3>
+            <p>Artistic pursuits like music and poetry; also enjoy hiking</p>
+
+            <h3>References</h3>
+            <p><strong>Faith Buuri</strong></p>
+            <p>Title: Form Head</p>
+            <p>Phone Number: +254 723 145369</p>
+            <p>Email: faithkathure@yahoo.com</p>
+        </div>
+    </div>
+
+</body>
+
+<footer class="footer">
+    <p>Follow me on:</p>
+    <div class="social-links">
+        <a href="https://instagram.com/lar.janus" target="_blank">
+            <i class="fab fa-instagram"></i> @lar.janus
+        </a>
+        <a href="https://x.com/ezorelle23" target="_blank">
+            <i class="fab fa-x-twitter"></i> ezorelle23
+        </a>
+        <a href="https://facebook.com/japhiter.si" target="_blank">
+            <i class="fab fa-facebook"></i> Japhiter Si
+        </a>
+        <p>
+        <a href="https://www.linkedin.com/in/japhiter-oyaro-3b1461248" target="_blank">
+  <i class="fab fa-linkedin" style="font-size: 24px; color: #0077b5;"></i>Japhiter
+</a>
+</p>
+    </div>
+    <p>ℂ𝔸𝕊ℍ ℝ𝕌𝕃𝔼𝕊 𝔼𝕍𝔼ℝ𝕐𝕋ℍ𝕀ℕ𝔾 𝔸ℝ𝕆𝕌ℕ𝔻 𝕄𝔼</p>
+    <p>&copy; 2025 Ezorelle. All rights reserved.</p>
+    
+  
+    
+</footer>
+</html>

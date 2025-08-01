@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Registration</title>
+  <link rel="stylesheet" href="Registration.css">
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <div class="container">
+      <header>Registration Form</header>
+      <form class="form" onsubmit="registerUser(event)">
+
+        <div class="input-box">
+          <label>Full Name</label>
+          <input required placeholder="Enter full name" type="text" id="regName">
+        </div>
+
+<div class="input-box">
+  <label>Email</label>
+  <input required placeholder="Enter email" type="email" id="regEmail">
+</div>
+      
+  <div class="column">
+          <div class="input-box">
+            <label>Phone Number</label>
+            <input required placeholder="Enter phone number" type="tel" id="regPhone">
+          </div>
+          <div class="input-box">
+            <label>Birth Date</label>
+            <input required placeholder="Enter birth date" type="date" id="regBirthdate">
+          </div>
+        </div>
+
+        <div class="input-box">
+          <label>Password</label>
+          <input required placeholder="Enter password" type="password" id="regPassword">
+        </div>
+
+        <div class="input-box">
+          <label>Confirm Password</label>
+          <input required placeholder="Confirm password" type="password" id="confirmPassword">
+        </div>
+
+        <div class="gender-box">
+          <label>Gender</label>
+          <div class="gender-option">
+            <div class="gender">
+              <input checked name="gender" id="check-male" type="radio">
+              <label for="check-male">Male</label>
+            </div>
+            <div class="gender">
+              <input name="gender" id="check-female" type="radio">
+              <label for="check-female">Female</label>
+            </div>
+            <div class="gender">
+              <input name="gender" id="check-other" type="radio">
+              <label for="check-other">Prefer not to say</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-box address">
+          <label>Address</label>
+          <input required placeholder="Enter street address" type="text" id="regAddress">
+          <div class="column">
+            <div class="select-box">
+              <select id="regCountry">
+                <option hidden>Country</option>
+                <option>USA</option>
+                <option>UK</option>
+                <option>Germany</option>
+                <option>Japan</option>
+                <option>Kenya</option>
+                <option>Brazil</option>
+                <option>Russia</option>
+              </select>
+            </div>
+            <input required placeholder="Enter your city" type="text" id="regCity">
+          </div>
+        </div>
+
+        <button type="submit">Register</button>
+
+      </form>
+    </div>
+  </div>
+
+  <script src="Index.js"></script>
+</body>
+</html>

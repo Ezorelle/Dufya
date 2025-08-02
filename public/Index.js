@@ -71,3 +71,26 @@ async function registerUser(event) {
     console.error("Registration error:", error);
   }
 }
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          window.location.href = '/Login.html';
+        } else {
+          alert('Logout failed.');
+        }
+      } catch (err) {
+        alert('Error logging out: ' + err.message);
+      }
+    });
+  }
+});

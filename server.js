@@ -14,7 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // MongoDB URI
-const MONGO_URI = "mongodb+srv://ezorelle23:daniel123@cluster0.dlmpmvb.mongodb.net/dufyaDB?retryWrites=true&w=majority&appName=Cluster0";
+const MONGO_URI = "mongodb+srv://ezorelle23:Jadakiss@cluster0.dlmpmvb.mongodb.net/Vendora?retryWrites=true&w=majority&appName=Cluster0";
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URI)

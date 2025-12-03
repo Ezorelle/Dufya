@@ -12,7 +12,7 @@ const viewsPath = path.join(__dirname, 'views');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Parse incoming requests
+// Parse incoming request
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

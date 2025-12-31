@@ -23,7 +23,7 @@ mongoose.connect(MONGO_URI)
 
 // Session setup 
 app.use(session({
-  secret: process.env.SESSION_SECRET, // <-- loaded from .env
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
@@ -33,7 +33,8 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 // 1 day
+    secure: process.env.NODE_ENV === "production", // ✅ REQUIRED
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 
@@ -137,7 +138,6 @@ app.post('/logout', (req, res) => {
     res.json({ message: 'Logged out successfully.' });
   });
 });
-// start the server//
-app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT} 🥶`);
-});
+
+module.exports = app;
+

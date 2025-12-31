@@ -84,12 +84,15 @@ app.post("/register", async (req, res) => {
   const { fullName, phone, birthDate, password, gender, address, country, city } = req.body;
 
   if (!fullName || !phone || !birthDate || !password) {
-    return res.status(400).json({ message: "All required fields must be filled." });
+    // Send back to register page with an error query (optional)
+    return res.redirect("/Register.html?error=All+required+fields+must+be+filled");
   }
 
   try {
     const userExists = await User.findOne({ phone });
-    if (userExists) return res.status(400).json({ message: "User already exists." });
+    if (userExists) {
+      return res.redirect("/Register.html?error=User+already+exists");
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
@@ -104,10 +107,11 @@ app.post("/register", async (req, res) => {
     });
 
     await newUser.save();
-    res.json({ message: "Registration successful." });
+    // Redirect automatically to login page 
+    return res.redirect("/Login.html");
   } catch (err) {
     console.error("Register error:", err);
-    res.status(500).json({ message: "Failed to register user.", error: err.message });
+    return res.redirect("/Register.html?error=Registration+failed");
   }
 });
 
@@ -116,15 +120,15 @@ app.post("/login", async (req, res) => {
   const { phone, password } = req.body;
 
   if (!phone || !password) {
-    return res.status(400).json({ success: false, message: "Phone and password are required." });
+    return res.redirect("/Login.html?error=Phone+and+password+are+required");
   }
 
   try {
     const user = await User.findOne({ phone });
-    if (!user) return res.status(401).json({ success: false, message: "Invalid phone or password." });
+    if (!user) return res.redirect("/Login.html?error=Invalid+phone+or+password");
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ success: false, message: "Invalid phone or password." });
+    if (!isMatch) return res.redirect("/Login.html?error=Invalid+phone+or+password");
 
     req.session.user = {
       id: user._id.toString(),
@@ -132,12 +136,14 @@ app.post("/login", async (req, res) => {
       fullName: user.fullName,
     };
 
-    res.status(200).json({ success: true, message: "Login successful." });
+    // Redirect to dashboard 
+    return res.redirect("/index.html");
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ success: false, message: "An error occurred during login.", error: err.message });
+    return res.redirect("/Login.html?error=Login+failed");
   }
 });
+
 
 // LOGOUT
 app.post("/logout", (req, res) => {

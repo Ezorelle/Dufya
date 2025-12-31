@@ -1,27 +1,25 @@
-require("dotenv").config(); 
+require("dotenv").config();
 
-const express = require('express');
-const path = require('path');
-const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
-const User = require('./models/User');
+const express = require("express");
+const path = require("path");
+const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
+const User = require("./models/User");
 
-const viewsPath = path.join(__dirname, 'views');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const viewsPath = path.join(__dirname, "views");
 
-// Parse incoming request
+// Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-//vercel-mongoDB
+// MongoDB connection 
 let isConnected = false;
 
 async function connectDB() {
   if (isConnected) return;
-
   try {
     await mongoose.connect(process.env.MONGO_URI);
     isConnected = true;
@@ -34,75 +32,65 @@ async function connectDB() {
 
 connectDB();
 
-//session setup
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: process.env.MONGO_URI,
-    mongoOptions: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+// Session setup
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
+      collectionName: "sessions",
+    }),
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 1000 * 60 * 60 * 24, 
     },
-    collectionName: 'sessions'
-  }),
-  cookie: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1000 * 60 * 60 * 24
-  }
-}));
+  })
+);
 
-  }),
-  cookie: {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === "production", // ✅ REQUIRED
-    maxAge: 1000 * 60 * 60 * 24
-  }
-}));
+// Serve static files
+app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware to protect routes
+
+// Middleware 
+
 function requireLogin(req, res, next) {
   if (!req.session.user) {
-    return res.redirect('/Login.html');
+    return res.sendFile(path.join(__dirname, "public", "Login.html"));
   }
   next();
 }
 
-app.get('/index.html', requireLogin, (req, res) => {
-  console.log("User accessing dashboard:", req.session.user);
-  res.sendFile(path.join(viewsPath, 'index.html'));
+// Root route
+app.get("/", (req, res) => {
+  if (req.session.user) {
+    return res.sendFile(path.join(viewsPath, "index.html"));
+  }
+  return res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Serve login page
-app.get('/', (req, res) => {
-  if (req.session.user) {
-    return res.redirect('/index.html');
-  } else {
-    return res.redirect('/Login.html');
-  }
+// Dashboard 
+app.get("/index.html", requireLogin, (req, res) => {
+  console.log("User accessing dashboard:", req.session.user);
+  res.sendFile(path.join(viewsPath, "index.html"));
 });
 
 // REGISTER
-app.post('/register', async (req, res) => {
+app.post("/register", async (req, res) => {
   const { fullName, phone, birthDate, password, gender, address, country, city } = req.body;
 
   if (!fullName || !phone || !birthDate || !password) {
-    return res.status(400).json({ message: 'All required fields must be filled.' });
-  }
-
-  const userExists = await User.findOne({ phone });
-  if (userExists) {
-    return res.status(400).json({ message: 'User already exists.' });
+    return res.status(400).json({ message: "All required fields must be filled." });
   }
 
   try {
+    const userExists = await User.findOne({ phone });
+    if (userExists) return res.status(400).json({ message: "User already exists." });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       fullName,
@@ -112,58 +100,54 @@ app.post('/register', async (req, res) => {
       gender,
       address,
       country,
-      city
+      city,
     });
 
     await newUser.save();
-    res.json({ message: 'Registration successful.' });
+    res.json({ message: "Registration successful." });
   } catch (err) {
-    res.status(500).json({ message: 'Failed to register user.', error: err.message });
+    console.error("Register error:", err);
+    res.status(500).json({ message: "Failed to register user.", error: err.message });
   }
 });
 
 // LOGIN
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { phone, password } = req.body;
 
   if (!phone || !password) {
-    return res.status(400).json({ success: false, message: 'Phone and password are required.' });
+    return res.status(400).json({ success: false, message: "Phone and password are required." });
   }
 
   try {
     const user = await User.findOne({ phone });
-
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid phone or password.' });
-    }
+    if (!user) return res.status(401).json({ success: false, message: "Invalid phone or password." });
 
     const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(401).json({ success: false, message: 'Invalid phone or password.' });
-    }
+    if (!isMatch) return res.status(401).json({ success: false, message: "Invalid phone or password." });
 
     req.session.user = {
       id: user._id.toString(),
       phone: user.phone,
-      fullName: user.fullName
+      fullName: user.fullName,
     };
 
-    return res.status(200).json({ success: true, message: 'Login successful.' });
-
+    res.status(200).json({ success: true, message: "Login successful." });
   } catch (err) {
-    console.error('Login error:', err);
-    return res.status(500).json({ success: false, message: 'An error occurred during login.', error: err.message });
+    console.error("Login error:", err);
+    res.status(500).json({ success: false, message: "An error occurred during login.", error: err.message });
   }
 });
 
 // LOGOUT
-app.post('/logout', (req, res) => {
+app.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.clearCookie('connect.sid');
-    res.json({ message: 'Logged out successfully.' });
+    res.clearCookie("connect.sid");
+    res.json({ message: "Logged out successfully." });
   });
 });
 
-module.exports = app;
 
+// Export for Vercel
+
+module.exports = app;

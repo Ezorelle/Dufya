@@ -1,27 +1,22 @@
-async function loginUser(event) {
-  event.preventDefault();
+const loginForm = document.getElementById('loginForm');
 
-  const phone = document.getElementById('loginPhone').value.trim();
-  const password = document.getElementById('loginPassword').value;
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(loginForm);
+  const data = Object.fromEntries(formData);
+  
+  const res = await fetch('/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
 
-  try {
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      credentials: 'include',
-      body: JSON.stringify({ phone, password })
-    });
+  const result = await res.json();
 
-    const data = await response.json();
-
-    if (response.ok && data.success) {
-      window.location.href = '/index.html'; // <- redirect here manually
-    } else {
-      alert(data.message || 'Login failed.');
-    }
-  } catch (err) {
-    alert('Login error: ' + err.message);
+  if (result.success) {
+    window.location.href = '/index.html';
+  } else {
+    alert(result.message);
   }
-}
+});

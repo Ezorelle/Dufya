@@ -151,18 +151,19 @@ h78.747C231.693,100.736,232.77,106.162,232.77,111.694z"
       ⓈⒾⒼⓃ ⒾⓃ ⓉⓄ ⓎⓄⓊⓇ ⒶⒸⒸⓄⓊⓃⓉ
     </div>
 
-   <form class="form" onsubmit="loginUser(event)">
+   <form class="form" id="loginForm">
   <div class="input-field">
-    <input required autocomplete="off" type="tel" id="loginPhone" />
+    <input required autocomplete="off" type="tel" id="loginPhone" name="phone" />
     <label for="loginPhone">Phone Number</label>
   </div>
 
   <div class="input-field">
-    <input required autocomplete="off" type="password" id="loginPassword" />
+    <input required autocomplete="off" type="password" id="loginPassword" name="password" />
     <label for="loginPassword">Password</label>
   </div>
 
   <button type="submit" class="btn">Submit</button>
+</form>
 
   <div class="acc-text">
     New here?

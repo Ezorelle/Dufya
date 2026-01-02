@@ -17,10 +17,7 @@ const viewsPath = path.join(__dirname, "views");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Connect to MongoDB (centralized)
-connectDB();
-
-// Session setup
+// Session setup (works for serverless)
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -33,17 +30,17 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
+      secure: true, // HTTPS required
+      sameSite: "none", // cross-site for serverless
+      maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
 
-// Serve static files
+// Serve static files (for /public)
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware to protect routes
+// Middleware to protect dashboard
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.sendFile(path.join(__dirname, "public", "Login.html"));
@@ -51,15 +48,12 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// Root route
+// Routes
 app.get("/", (req, res) => {
-  if (req.session.user) {
-    return res.sendFile(path.join(viewsPath, "index.html"));
-  }
+  if (req.session.user) return res.sendFile(path.join(viewsPath, "index.html"));
   return res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
-// Dashboard route (protected)
 app.get("/index.html", requireLogin, (req, res) => {
   console.log("User accessing dashboard:", req.session.user);
   res.sendFile(path.join(viewsPath, "index.html"));
@@ -71,8 +65,15 @@ app.use("/api/register", registerRoute);
 app.use("/api/logout", logoutRoute);
 
 // 404 fallback
-app.use((req, res) => {
-  res.status(404).send("Page not found");
-});
+app.use((req, res) => res.status(404).send("Page not found"));
 
-module.exports = app;
+// Serverless handler
+module.exports = async (req, res) => {
+  try {
+    await connectDB(); // ensure MongoDB is connected
+    app(req, res);
+  } catch (err) {
+    console.error("Serverless function error:", err);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};

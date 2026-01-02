@@ -1,11 +1,14 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
-const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
-const User = require("./models/User");
 const connectDB = require("./db");
+
+// Import modular API routes
+const loginRoute = require("./api/login");
+const registerRoute = require("./api/register");
+const logoutRoute = require("./api/logout");
 
 const app = express();
 const viewsPath = path.join(__dirname, "views");
@@ -14,7 +17,7 @@ const viewsPath = path.join(__dirname, "views");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Connect to DB
+// Connect to MongoDB (centralized)
 connectDB();
 
 // Session setup
@@ -32,7 +35,7 @@ app.use(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -40,7 +43,7 @@ app.use(
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware
+// Middleware to protect routes
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.sendFile(path.join(__dirname, "public", "Login.html"));
@@ -48,7 +51,7 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// Routes
+// Root route
 app.get("/", (req, res) => {
   if (req.session.user) {
     return res.sendFile(path.join(viewsPath, "index.html"));
@@ -56,73 +59,20 @@ app.get("/", (req, res) => {
   return res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
+// Dashboard route (protected)
 app.get("/index.html", requireLogin, (req, res) => {
   console.log("User accessing dashboard:", req.session.user);
   res.sendFile(path.join(viewsPath, "index.html"));
 });
 
-// REGISTER
-app.post("/register", async (req, res) => {
-  const { fullName, phone, birthDate, password, gender, address, country, city } = req.body;
+// Mount modular API routes
+app.use("/api/login", loginRoute);
+app.use("/api/register", registerRoute);
+app.use("/api/logout", logoutRoute);
 
-  if (!fullName || !phone || !birthDate || !password) {
-    return res.redirect("/Register.html?error=All+required+fields+must+be+filled");
-  }
-
-  try {
-    const userExists = await User.findOne({ phone });
-    if (userExists) return res.redirect("/Register.html?error=User+already+exists");
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({
-      fullName,
-      phone,
-      birthDate,
-      password: hashedPassword,
-      gender,
-      address,
-      country,
-      city,
-    });
-
-    await newUser.save();
-    return res.redirect("/Login.html");
-  } catch (err) {
-    console.error("Register error:", err);
-    return res.redirect("/Register.html?error=Registration+failed");
-  }
-});
-
-// LOGIN
-app.post("/login", async (req, res) => {
-  const { phone, password } = req.body;
-  if (!phone || !password) return res.redirect("/Login.html?error=Phone+and+password+are+required");
-
-  try {
-    const user = await User.findOne({ phone });
-    if (!user) return res.redirect("/Login.html?error=Invalid+phone+or+password");
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.redirect("/Login.html?error=Invalid+phone+or+password");
-
-    req.session.user = {
-      id: user._id.toString(),
-      phone: user.phone,
-      fullName: user.fullName,
-    };
-    return res.redirect("/index.html");
-  } catch (err) {
-    console.error("Login error:", err);
-    return res.redirect("/Login.html?error=Login+failed");
-  }
-});
-
-// LOGOUT
-app.post("/logout", (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie("connect.sid");
-    res.json({ message: "Logged out successfully." });
-  });
+// 404 fallback
+app.use((req, res) => {
+  res.status(404).send("Page not found");
 });
 
 module.exports = app;

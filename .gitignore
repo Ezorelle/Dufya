@@ -1,14 +1,35 @@
 # Node modules
 node_modules/
 
-# Environment variables
-.env
-
 # Logs
-logs/
+logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Vercel build cache (optional, safe to ignore)
+.vercel/
 
 # OS files
 .DS_Store
 Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Production build folder 
+dist/
+build/
+
+#

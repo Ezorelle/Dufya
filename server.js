@@ -17,7 +17,7 @@ const viewsPath = path.join(__dirname, "views");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session setup (works for serverless)
+// Session setup 
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -30,17 +30,17 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true, // HTTPS required
-      sameSite: "none", // cross-site for serverless
+      secure: true, 
+      sameSite: "none", 
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
 
-// Serve static files (for /public)
+//static files 
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware to protect dashboard
+// Middleware 
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.sendFile(path.join(__dirname, "public", "Login.html"));
@@ -59,7 +59,7 @@ app.get("/index.html", requireLogin, (req, res) => {
   res.sendFile(path.join(viewsPath, "index.html"));
 });
 
-// Mount modular API routes
+// API routes
 app.use("/api/login", loginRoute);
 app.use("/api/register", registerRoute);
 app.use("/api/logout", logoutRoute);
@@ -70,7 +70,7 @@ app.use((req, res) => res.status(404).send("Page not found"));
 // Serverless handler
 module.exports = async (req, res) => {
   try {
-    await connectDB(); // ensure MongoDB is connected
+    await connectDB(); 
     app(req, res);
   } catch (err) {
     console.error("Serverless function error:", err);

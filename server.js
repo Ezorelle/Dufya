@@ -77,10 +77,3 @@ app.use((req, res) => {
 // ✅ EXPORT APP 
 module.exports = app;
 
-// Local development only
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
-  });
-}

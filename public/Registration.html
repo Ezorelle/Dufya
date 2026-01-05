@@ -10,74 +10,79 @@
   <div class="login-wrapper">
     <div class="container">
       <header>Registration Form</header>
-      <form class="form" onsubmit="registerUser(event)">
-
-        <div class="input-box">
-          <label>Full Name</label>
-          <input required placeholder="Enter full name" type="text" id="regName">
-        </div>
-
-<div class="input-box">
-  <label>Email</label>
-  <input required placeholder="Enter email" type="email" id="regEmail">
-</div>
       
-  <div class="column">
+      <form class="form" id="registerForm">
+
+        <div class="input-box">
+          <label for="regName">Full Name</label>
+          <input name="fullName" id="regName" type="text" placeholder="Enter full name" required>
+        </div>
+
+        <div class="input-box">
+          <label for="regEmail">Email</label>
+          <input name="email" id="regEmail" type="email" placeholder="Enter email" required>
+        </div>
+
+        <div class="column">
           <div class="input-box">
-            <label>Phone Number</label>
-            <input required placeholder="Enter phone number" type="tel" id="regPhone">
+            <label for="regPhone">Phone Number</label>
+            <input name="phone" id="regPhone" type="tel" placeholder="Enter phone number" required>
           </div>
+
           <div class="input-box">
-            <label>Birth Date</label>
-            <input required placeholder="Enter birth date" type="date" id="regBirthdate">
+            <label for="regBirthdate">Birth Date</label>
+            <input name="birthDate" id="regBirthdate" type="date" required>
           </div>
         </div>
 
         <div class="input-box">
-          <label>Password</label>
-          <input required placeholder="Enter password" type="password" id="regPassword">
+          <label for="regPassword">Password</label>
+          <input name="password" id="regPassword" type="password" placeholder="Enter password" required>
         </div>
 
         <div class="input-box">
-          <label>Confirm Password</label>
-          <input required placeholder="Confirm password" type="password" id="confirmPassword">
+          <label for="confirmPassword">Confirm Password</label>
+          <input name="confirmPassword" id="confirmPassword" type="password" placeholder="Confirm password" required>
         </div>
 
         <div class="gender-box">
           <label>Gender</label>
           <div class="gender-option">
             <div class="gender">
-              <input checked name="gender" id="check-male" type="radio">
+              <input name="gender" id="check-male" type="radio" value="Male" checked>
               <label for="check-male">Male</label>
             </div>
             <div class="gender">
-              <input name="gender" id="check-female" type="radio">
+              <input name="gender" id="check-female" type="radio" value="Female">
               <label for="check-female">Female</label>
             </div>
             <div class="gender">
-              <input name="gender" id="check-other" type="radio">
+              <input name="gender" id="check-other" type="radio" value="Other">
               <label for="check-other">Prefer not to say</label>
             </div>
           </div>
         </div>
 
         <div class="input-box address">
-          <label>Address</label>
-          <input required placeholder="Enter street address" type="text" id="regAddress">
-          <div class="column">
-            <div class="select-box">
-              <select id="regCountry">
-                <option hidden>Country</option>
-                <option>USA</option>
-                <option>UK</option>
-                <option>Germany</option>
-                <option>Japan</option>
-                <option>Kenya</option>
-                <option>Brazil</option>
-                <option>Russia</option>
-              </select>
-            </div>
-            <input required placeholder="Enter your city" type="text" id="regCity">
+          <label for="regAddress">Address</label>
+          <input name="address" id="regAddress" type="text" placeholder="Enter street address" required>
+        </div>
+
+        <div class="column">
+          <div class="select-box">
+            <select name="country" id="regCountry" required>
+              <option hidden>Country</option>
+              <option>USA</option>
+              <option>UK</option>
+              <option>Germany</option>
+              <option>Japan</option>
+              <option>Kenya</option>
+              <option>Brazil</option>
+              <option>Russia</option>
+            </select>
+          </div>
+          <div class="input-box">
+            <input name="city" id="regCity" type="text" placeholder="Enter your city" required>
           </div>
         </div>
 
@@ -87,6 +92,6 @@
     </div>
   </div>
 
-  <script src="logon.js"></script>
+  <script src="logon.js" defer></script>
 </body>
 </html>

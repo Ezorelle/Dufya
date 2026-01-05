@@ -17,7 +17,12 @@ const viewsPath = path.join(__dirname, "views");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session setup 
+// ✅ Connect DB ONCE (cached internally)
+connectDB().catch(err => {
+  console.error("MongoDB connection failed:", err);
+});
+
+// Session setup
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -25,22 +30,21 @@ app.use(
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
-      mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
       collectionName: "sessions",
     }),
     cookie: {
       httpOnly: true,
-      secure: true, 
-      sameSite: "none", 
+      secure: true,
+      sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
 );
 
-//static files 
+// Static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Middleware 
+// Auth middleware
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.sendFile(path.join(__dirname, "public", "Login.html"));
@@ -50,12 +54,13 @@ function requireLogin(req, res, next) {
 
 // Routes
 app.get("/", (req, res) => {
-  if (req.session.user) return res.sendFile(path.join(viewsPath, "index.html"));
+  if (req.session.user) {
+    return res.sendFile(path.join(viewsPath, "index.html"));
+  }
   return res.sendFile(path.join(__dirname, "public", "Login.html"));
 });
 
 app.get("/index.html", requireLogin, (req, res) => {
-  console.log("User accessing dashboard:", req.session.user);
   res.sendFile(path.join(viewsPath, "index.html"));
 });
 
@@ -65,15 +70,17 @@ app.use("/api/register", registerRoute);
 app.use("/api/logout", logoutRoute);
 
 // 404 fallback
-app.use((req, res) => res.status(404).send("Page not found"));
+app.use((req, res) => {
+  res.status(404).send("Page not found");
+});
 
-// Serverless handler
-module.exports = async (req, res) => {
-  try {
-    await connectDB(); 
-    app(req, res);
-  } catch (err) {
-    console.error("Serverless function error:", err);
-    res.status(500).json({ success: false, message: "Internal Server Error" });
-  }
-};
+// ✅ EXPORT APP 
+module.exports = app;
+
+// Local development only
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
+  });
+}

@@ -17,7 +17,7 @@ const viewsPath = path.join(__dirname, "views");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// ✅ Connect DB ONCE (cached internally)
+// ✅ Connect DB
 connectDB().catch(err => {
   console.error("MongoDB connection failed:", err);
 });
@@ -34,9 +34,9 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 1000 * 60 * 60 * 24,
+      secure: process.env.NODE_ENV === "production", // secure cookies only in prod
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
@@ -74,6 +74,13 @@ app.use((req, res) => {
   res.status(404).send("Page not found");
 });
 
-// ✅ EXPORT APP 
+// ✅ EXPORT APP (Vercel serverless-friendly)
 module.exports = app;
 
+// run locally 
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Local server running at http://localhost:${PORT}`);
+  });
+}

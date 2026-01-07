@@ -63,4 +63,22 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Additional validation 
+const { fullName, phone, birthDate, password, gender, address, country, city } = req.body;
+
+if (!fullName?.trim() || !phone?.trim() || !birthDate || !password?.trim()) {
+  return res.status(400).json({ message: "Required fields are missing." });
+}
+
+// Phone validation 
+if (!/^\+?\d{10,15}$/.test(phone.trim())) {
+  return res.status(400).json({ message: "Invalid phone number." });
+}
+
+//after successful match:
+req.session.user = { id: user._id, phone: user.phone, fullName: user.fullName }; // If using express-session
+res.json({
+  message: "Login successful.",
+  fullName: user.fullName
+});
 module.exports = router;

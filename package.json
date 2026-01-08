@@ -21,7 +21,7 @@
   "iconv-lite": "0.6.3",
   "mongoose": "7.6.11" 
 }
-  "devDependencies": {
+   "devDependencies": {
     "nodemon": "^3.0.2"
-  }
+  },
 }

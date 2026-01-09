@@ -1,5 +1,5 @@
 DUFYA
-
+--
 Dufya is a full-stack web application built with Node.js, Express, MongoDB, and vanilla HTML/CSS/JS.
 The project focuses on authentication, clean UI, and a custom backend setup without using website builders.
 
